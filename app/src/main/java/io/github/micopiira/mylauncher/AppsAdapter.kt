@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 
-class AppsAdapter(context: Context, private val apps: List<AppDetail>) : ArrayAdapter<AppDetail>(context, 0, apps), Filterable {
+class AppsAdapter(context: Context, private val apps: List<AppDetail?>) : ArrayAdapter<AppDetail>(context, 0, apps), Filterable {
 
     var filteredApps = apps;
 
@@ -17,7 +17,7 @@ class AppsAdapter(context: Context, private val apps: List<AppDetail>) : ArrayAd
             override fun performFiltering(p0: CharSequence?): FilterResults {
                 val filterResults = FilterResults()
                 filterResults.values = apps.filter {
-                    if (p0 != null && p0.isNotEmpty()) it.label.contains(p0, true) || it.label.contains(p0, true) else true
+                    if (p0 != null && p0.isNotEmpty()) it!!.label.contains(p0, true) || it.label.contains(p0, true) else true
                 }
                 return filterResults;
             }
@@ -34,7 +34,7 @@ class AppsAdapter(context: Context, private val apps: List<AppDetail>) : ArrayAd
         return filteredApps.size
     }
 
-    override fun getItem(position: Int): AppDetail {
+    override fun getItem(position: Int): AppDetail? {
         return filteredApps[position]
     }
 
@@ -54,7 +54,7 @@ class AppsAdapter(context: Context, private val apps: List<AppDetail>) : ArrayAd
             convertView.tag = holder
         }
 
-        holder.appIcon!!.setImageDrawable(app.icon)
+        holder.appIcon!!.setImageDrawable(app!!.icon)
         holder.appLabel!!.text = app.label
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)

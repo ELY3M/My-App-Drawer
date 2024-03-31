@@ -15,16 +15,18 @@ class AppRepository(context: Context, appName: String) {
             intent = Intent(context, PreferencesActivity::class.java)
     )
 
-    fun findAll(): List<AppDetail> {
+    fun findAll(): List<AppDetail?> {
         val i = Intent(Intent.ACTION_MAIN, null).addCategory(Intent.CATEGORY_LAUNCHER)
 
         return packageManager.queryIntentActivities(i, 0).map {
-            AppDetail(
+            packageManager.getLaunchIntentForPackage(it.activityInfo.packageName)?.let { it1 ->
+                AppDetail(
                     label = it.loadLabel(packageManager).toString(),
                     name = it.activityInfo.packageName,
                     icon = it.activityInfo.loadIcon(packageManager),
-                    intent = packageManager.getLaunchIntentForPackage(it.activityInfo.packageName)
-            )
-        }.plus(settingsApp).sortedBy { it.label }
+                    intent = it1
+                )
+            }
+        }.plus(settingsApp).sortedBy { it!!.label }
     }
 }

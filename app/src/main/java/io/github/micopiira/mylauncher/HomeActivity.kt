@@ -9,11 +9,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.provider.Settings
-import android.provider.Settings.Global.getString
 import android.util.Log
+import android.widget.GridView
 import android.widget.SearchView
-
-import kotlinx.android.synthetic.main.activity_apps_list.*
 
 
 class MyReceiver : BroadcastReceiver() {
@@ -21,7 +19,7 @@ class MyReceiver : BroadcastReceiver() {
         when(intent!!.action) {
             "android.intent.action.PACKAGE_ADDED", "android.intent.action.PACKAGE_REMOVED" -> {
                 Log.d(javaClass.name, "Received")
-                HomeActivity.appsAdapter.filteredApps = AppRepository(context!!, context.getString(R.string.app_name)).findAll()
+                HomeActivity.appsAdapter.filteredApps = AppRepository(context!!, context.getString(R.string.app_name)).findAll() as List<AppDetail>
                 HomeActivity.appsAdapter.notifyDataSetChanged()
             }
         }
@@ -45,12 +43,15 @@ class HomeActivity : Activity() {
         val apps = AppRepository(this, getString(R.string.app_name)).findAll()
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
 
+        val apps_list = findViewById<GridView>(R.id.apps_list)
+        val searchview = findViewById<SearchView>(R.id.searchview)
+
         appsAdapter = AppsAdapter(this, apps)
         apps_list.numColumns = Integer.parseInt(sharedPreferences.getString(if (isPortrait) "grid_columns_portrait" else "grid_columns_landscape", "4"))
         apps_list.adapter = appsAdapter
-        apps_list.setOnItemClickListener { _, _, position, _ -> startActivity(appsAdapter.filteredApps[position].intent) }
+        apps_list.setOnItemClickListener { _, _, position, _ -> startActivity(appsAdapter.filteredApps[position]!!.intent) }
         apps_list.setOnItemLongClickListener { _, _, position, _ ->
-            startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).setData(Uri.fromParts("package", appsAdapter.filteredApps[position].name, null)))
+            startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).setData(Uri.fromParts("package", appsAdapter.filteredApps[position]!!.name, null)))
             return@setOnItemLongClickListener true
         }
         searchview.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -78,6 +79,5 @@ class HomeActivity : Activity() {
 
     }
 
-    override fun onBackPressed() {}
 
 }
